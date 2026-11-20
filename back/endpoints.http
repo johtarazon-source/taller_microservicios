@@ -160,3 +160,31 @@ Content-Type: application/json
 ### Cancelar reserva
 POST {{reservas}}/reservas/1/cancelacion
 Authorization: Bearer {{token}}
+
+### Rutas que usan los microservicios entre sí (cada uno solo consulta a los demás por HTTP, nunca a su base)
+### Vehículos por ids, con el estado guardado (lo usa reservas_ms)
+GET {{vehiculos}}/vehiculos/lote?ids=1,2
+Authorization: Bearer {{token}}
+
+### Enviar un vehículo a mantenimiento (lo usa reservas_ms al devolverlo)
+POST {{vehiculos}}/vehiculos/1/mantenimiento
+Authorization: Bearer {{token}}
+
+### Varios clientes por ids (lo usa reservas_ms)
+GET {{clientes}}/clientes?ids=1,2
+Authorization: Bearer {{token}}
+
+### Ids de vehículos ocupados hoy, o que se cruzan con un rango (lo usa vehiculos_ms)
+GET {{reservas}}/reservas/ocupados
+Authorization: Bearer {{token}}
+
+GET {{reservas}}/reservas/ocupados?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
+Authorization: Bearer {{token}}
+
+### Reservas sin incrustar otros datos (embeber = ambos | cliente | vehiculo | ninguno; limite opcional)
+GET {{reservas}}/reservas?vehiculo_id=1&embeber=cliente
+Authorization: Bearer {{token}}
+
+### Totales y listas de reservas para el panel (lo usa reportes_ms)
+GET {{reservas}}/reservas/resumen
+Authorization: Bearer {{token}}

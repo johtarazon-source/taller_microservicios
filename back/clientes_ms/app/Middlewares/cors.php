@@ -25,7 +25,7 @@ return function (ResponseFactoryInterface $fabrica_respuestas): callable {
         }
 
         return $respuesta
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     };
 };

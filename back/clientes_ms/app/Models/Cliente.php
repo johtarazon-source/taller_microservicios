@@ -4,18 +4,12 @@ namespace App\Models;
 
 use App\Support\Formato;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cliente extends Model
 {
     protected $table = 'clientes';
 
     protected $fillable = ['nombre', 'telefono', 'correo', 'numero_licencia'];
-
-    public function reservas(): HasMany
-    {
-        return $this->hasMany(Reserva::class, 'cliente_id');
-    }
 
     public function to_array(): array
     {

@@ -961,35 +961,58 @@ async function construirPanelGeneral() {
     { class: 'pagina panel' },
     crearElemento(
       'header',
-      { class: 'panel__cabecera' },
-      crearElemento('h1', { class: 'panel__titulo' }, 'Panel de ', crearElemento('strong', {}, 'Gestor')),
+      { class: 'panel__hero' },
       crearElemento(
         'div',
-        { class: 'panel__acciones' },
+        { class: 'panel__hero-texto' },
+        crearElemento('h1', { class: 'panel__titulo' }, 'Panel de ', crearElemento('strong', {}, 'Gestor')),
         crearElemento(
-          'a',
-          { class: 'boton boton--destacado boton--grande', href: 'reservas.html?nueva=1' },
-          crearElemento('span', { class: 'boton__icono', 'aria-hidden': 'true' }, icono('mas')),
-          'Nueva reserva',
+          'p',
+          { class: 'panel__fecha' },
+          'Situación de la flota al ',
+          crearElemento('span', {}, formatearFecha(resumen.fecha)),
         ),
-        vencidas > 0
+        resumen.marcas.length > 0
           ? crearElemento(
-              'a',
-              { class: 'aviso aviso--alerta', href: 'reservas.html?estado=activa' },
-              icono('alerta'),
-              `${vencidas} ${pluralizar(vencidas, 'devolución vencida', 'devoluciones vencidas')}`,
+              'ul',
+              { class: 'panel__marcas', 'aria-label': 'Marcas de la flota' },
+              resumen.marcas.map((marca) => crearElemento('li', {}, marca)),
             )
           : null,
+        crearElemento(
+          'div',
+          { class: 'panel__acciones' },
+          crearElemento(
+            'a',
+            { class: 'boton boton--destacado boton--grande', href: 'reservas.html?nueva=1' },
+            crearElemento('span', { class: 'boton__icono', 'aria-hidden': 'true' }, icono('mas')),
+            'Nueva reserva',
+          ),
+          vencidas > 0
+            ? crearElemento(
+                'a',
+                { class: 'aviso aviso--alerta', href: 'reservas.html?estado=activa' },
+                icono('alerta'),
+                `${vencidas} ${pluralizar(vencidas, 'devolución vencida', 'devoluciones vencidas')}`,
+              )
+            : null,
+        ),
+      ),
+      crearElemento(
+        'div',
+        { class: 'panel__escena' },
+        crearElemento('img', {
+          class: 'panel__auto',
+          src: 'assets/img/hero-vehiculo.png?v=2',
+          alt: 'Vehículos de la flota',
+          width: 2096,
+          height: 1184,
+          decoding: 'async',
+        }),
       ),
     ),
 
-    resumen.marcas.length > 0
-      ? crearElemento(
-          'ul',
-          { class: 'panel__marcas', 'aria-label': 'Marcas de la flota' },
-          resumen.marcas.map((marca) => crearElemento('li', {}, marca)),
-        )
-      : null,
+    crearElemento('section', { class: 'panel__indicadores', 'aria-label': 'Indicadores' }, indicadores.map(indicador)),
 
     crearElemento(
       'section',
@@ -1006,47 +1029,12 @@ async function construirPanelGeneral() {
 
     crearElemento(
       'section',
-      { class: 'panel__resumen', 'aria-labelledby': 'titulo-resumen' },
-      crearElemento(
-        'header',
-        { class: 'panel__resumen-cabecera' },
-        iconoRecuadro('panel'),
-        crearElemento('h2', { id: 'titulo-resumen' }, 'Resumen de la flota'),
-        crearElemento(
-          'a',
-          { class: 'icono-recuadro', href: 'vehiculos.html', 'aria-label': 'Ver vehículos' },
-          icono('flecha', { grosor: 1.8 }),
-        ),
-      ),
-      crearElemento(
-        'p',
-        { class: 'panel__fecha' },
-        'Situación de la flota al ',
-        crearElemento('span', {}, formatearFecha(resumen.fecha)),
-      ),
-      crearElemento('div', { class: 'panel__indicadores' }, indicadores.map(indicador)),
-    ),
-
-    crearElemento(
-      'section',
       { class: 'panel__flota', 'aria-labelledby': 'titulo-flota' },
       crearElemento(
         'header',
         { class: 'panel__flota-cabecera' },
         crearElemento('h2', { id: 'titulo-flota' }, 'Vehículos'),
         enlaceBoton('Ver vehículos', 'vehiculos.html', 'boton--destacado boton--chico'),
-      ),
-      crearElemento(
-        'div',
-        { class: 'panel__escena' },
-        crearElemento('img', {
-          class: 'panel__auto',
-          src: 'assets/img/hero-vehiculo.png',
-          alt: '',
-          width: 1320,
-          height: 733,
-          decoding: 'async',
-        }),
       ),
       flota.total === 0
         ? vacioPanel(
