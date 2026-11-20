@@ -1,5 +1,3 @@
-// Cada microservicio escucha en su propio puerto (ver back/iniciar_servicios.ps1).
-// El prefijo de la ruta decide a cuál se envía la solicitud; las rutas son las mismas del monolito.
 const SERVICIOS_API = [
   { prefijo: '/auth', url: 'http://127.0.0.1:8001' },
   { prefijo: '/vehiculos', url: 'http://127.0.0.1:8002' },

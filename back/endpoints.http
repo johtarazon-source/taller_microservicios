@@ -1,15 +1,12 @@
-# Microservicios de alquiler de vehículos. Inicie los 5 servicios con back/iniciar_servicios.ps1.
-# Cada servicio escucha en su propio puerto; las rutas son las mismas del monolito (sin /api).
 @auth = http://127.0.0.1:8001
 @vehiculos = http://127.0.0.1:8002
 @clientes = http://127.0.0.1:8003
 @reservas = http://127.0.0.1:8004
 @reportes = http://127.0.0.1:8005
 
-# Pegue aquí el token devuelto por "Iniciar sesión".
-@token = PEGUE_AQUI_EL_TOKEN
+@token = 54781676a8978eba608709426cc32a95daf32b2a4ceab86f671d916c54f4c5a1
 
-### Iniciar sesión
+###
 POST {{auth}}/auth/login
 Content-Type: application/json
 
@@ -18,11 +15,11 @@ Content-Type: application/json
     "password": "admin1234"
 }
 
-### Resumen general
+###
 GET {{reportes}}/resumen
 Authorization: Bearer {{token}}
 
-### Consultar todos los vehículos
+###
 GET {{vehiculos}}/vehiculos
 Authorization: Bearer {{token}}
 
@@ -32,15 +29,15 @@ Authorization: Bearer {{token}}
 GET {{vehiculos}}/vehiculos?estado=disponible
 Authorization: Bearer {{token}}
 
-### Consultar vehículos disponibles en un rango de fechas
+###
 GET {{vehiculos}}/vehiculos/disponibles?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
 Authorization: Bearer {{token}}
 
-### Consultar un vehículo por id
+###
 GET {{vehiculos}}/vehiculos/1
 Authorization: Bearer {{token}}
 
-### Crear vehículo (estado opcional: disponible o mantenimiento)
+###
 POST {{vehiculos}}/vehiculos
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -53,7 +50,7 @@ Content-Type: application/json
     "estado": "disponible"
 }
 
-### Modificar vehículo
+###
 PUT {{vehiculos}}/vehiculos/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -66,28 +63,28 @@ Content-Type: application/json
     "estado": "mantenimiento"
 }
 
-### Eliminar vehículo
+###
 DELETE {{vehiculos}}/vehiculos/1
 Authorization: Bearer {{token}}
 
-### Historial de alquileres de un vehículo
+###
 GET {{vehiculos}}/vehiculos/1/historial
 Authorization: Bearer {{token}}
 
 
-### Consultar todos los clientes
+###
 GET {{clientes}}/clientes
 Authorization: Bearer {{token}}
 
-### Buscar clientes por nombre, correo, teléfono o licencia
+###
 GET {{clientes}}/clientes?buscar=maria
 Authorization: Bearer {{token}}
 
-### Consultar un cliente por id
+###
 GET {{clientes}}/clientes/1
 Authorization: Bearer {{token}}
 
-### Crear cliente (la licencia es obligatoria para poder reservar)
+###
 POST {{clientes}}/clientes
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -99,7 +96,7 @@ Content-Type: application/json
     "numero_licencia": "LIC-12345"
 }
 
-### Modificar cliente
+###
 PUT {{clientes}}/clientes/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -111,32 +108,32 @@ Content-Type: application/json
     "numero_licencia": "12312345"
 }
 
-### Eliminar cliente
+###
 DELETE {{clientes}}/clientes/1
 Authorization: Bearer {{token}}
 
-### Historial de alquileres de un cliente
+###
 GET {{clientes}}/clientes/1/historial
 Authorization: Bearer {{token}}
 
 
-### Consultar todas las reservas
+###
 GET {{reservas}}/reservas
 Authorization: Bearer {{token}}
 
-### Filtrar reservas por estado (activa, completada, cancelada)
+###
 GET {{reservas}}/reservas?estado=activa
 Authorization: Bearer {{token}}
 
-### Filtrar reservas por cliente o vehículo
+###
 GET {{reservas}}/reservas?cliente_id=1&vehiculo_id=1
 Authorization: Bearer {{token}}
 
-### Consultar una reserva por id
+###
 GET {{reservas}}/reservas/1
 Authorization: Bearer {{token}}
 
-### Crear reserva
+###
 POST {{reservas}}/reservas
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -148,7 +145,7 @@ Content-Type: application/json
     "fecha_fin": "2026-12-05"
 }
 
-### Registrar devolución (mantenimiento: true envía el vehículo a mantenimiento)
+###
 POST {{reservas}}/reservas/1/devolucion
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -157,34 +154,33 @@ Content-Type: application/json
     "mantenimiento": false
 }
 
-### Cancelar reserva
+###
 POST {{reservas}}/reservas/1/cancelacion
 Authorization: Bearer {{token}}
 
-### Rutas que usan los microservicios entre sí (cada uno solo consulta a los demás por HTTP, nunca a su base)
-### Vehículos por ids, con el estado guardado (lo usa reservas_ms)
+###
 GET {{vehiculos}}/vehiculos/lote?ids=1,2
 Authorization: Bearer {{token}}
 
-### Enviar un vehículo a mantenimiento (lo usa reservas_ms al devolverlo)
+###
 POST {{vehiculos}}/vehiculos/1/mantenimiento
 Authorization: Bearer {{token}}
 
-### Varios clientes por ids (lo usa reservas_ms)
+###
 GET {{clientes}}/clientes?ids=1,2
 Authorization: Bearer {{token}}
 
-### Ids de vehículos ocupados hoy, o que se cruzan con un rango (lo usa vehiculos_ms)
+###
 GET {{reservas}}/reservas/ocupados
 Authorization: Bearer {{token}}
 
 GET {{reservas}}/reservas/ocupados?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
 Authorization: Bearer {{token}}
 
-### Reservas sin incrustar otros datos (embeber = ambos | cliente | vehiculo | ninguno; limite opcional)
+###
 GET {{reservas}}/reservas?vehiculo_id=1&embeber=cliente
 Authorization: Bearer {{token}}
 
-### Totales y listas de reservas para el panel (lo usa reportes_ms)
+###
 GET {{reservas}}/reservas/resumen
 Authorization: Bearer {{token}}

@@ -4,9 +4,6 @@ namespace App\Models;
 
 use RuntimeException;
 
-/**
- * Almacén de sesiones en un JSON (storage/sessions.json): huella sha256 del token => datos de la sesión.
- */
 class Tokens
 {
     private string $ruta_archivo;

@@ -24,7 +24,6 @@ $app = AppFactory::create();
 
 (require __DIR__ . '/../app/Presentation/Routers/endpoints.php')($app);
 
-// Orden de ejecución (último agregado = más externo): CORS → errores → enrutamiento → ruta.
 $app->addRoutingMiddleware();
 
 $manejador_errores = $app->addErrorMiddleware($mostrar_detalles_error, false, false);

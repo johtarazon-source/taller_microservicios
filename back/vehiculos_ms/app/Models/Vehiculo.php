@@ -15,10 +15,6 @@ class Vehiculo extends Model
 
     protected $fillable = ['marca', 'modelo', 'anio', 'categoria', 'estado'];
 
-    /**
-     * El estado guardado solo distingue mantenimiento; "alquilado" depende de las reservas activas
-     * (reservas_ms), por eso quien lo sabe pasa `$ocupado`. Sin él, el vehículo se muestra disponible.
-     */
     public function to_array(bool $ocupado = false): array
     {
         return [

@@ -8,9 +8,6 @@ use App\Support\Respuesta;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-/**
- * Manejadores HTTP de /clientes: leen la petición, llaman al controlador y arman la respuesta.
- */
 class ClientesRepository
 {
     public function listar(Request $peticion, Response $respuesta): Response
@@ -45,7 +42,6 @@ class ClientesRepository
         return Respuesta::json($respuesta, 200, 'Historial del cliente obtenido.', $this->controlador($peticion)->get_historial((int) $args['id']));
     }
 
-    /** Se crea por petición: lleva el token del usuario para reenviarlo a reservas_ms. */
     private function controlador(Request $peticion): ClientesController
     {
         return new ClientesController(Peticion::token($peticion));

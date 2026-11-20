@@ -1,7 +1,6 @@
 :root {
   color-scheme: light;
 
-  /* Estilo "dibujo animado": contorno grueso navy + sombra dura desplazada */
   --color-contorno: #0f172a;
   --grosor-contorno: 2.5px;
   --borde-dibujo: var(--grosor-contorno) solid var(--color-contorno);
@@ -113,7 +112,6 @@ body::before {
   position: fixed;
   inset: -10px;
   z-index: -1;
-  /* Fondo de carretera: puntos tipo cómic, franja de asfalto y línea discontinua abajo */
   background:
     repeating-linear-gradient(90deg, rgb(251 191 36 / 85%) 0 30px, transparent 30px 62px) left 0 bottom 36px / 100% 5px no-repeat,
     linear-gradient(rgb(15 23 42 / 9%), rgb(15 23 42 / 9%)) bottom / 100% 88px no-repeat,
@@ -364,7 +362,6 @@ button {
     transform var(--duracion-rapida) var(--rebote);
 }
 
-/* Rebote: sube al pasar el cursor y se hunde como una tecla al presionar */
 .boton:hover {
   transform: translateY(-2px);
   box-shadow: var(--sombra-dura-hover);
@@ -391,7 +388,6 @@ button {
   background: var(--color-acento-resaltado);
 }
 
-/* Taxi amarillo: llamada principal a la acción */
 .boton--destacado {
   position: relative;
   background: var(--color-taxi);
@@ -402,7 +398,6 @@ button {
   background: var(--color-taxi-resaltado);
 }
 
-/* Rueda decorativa que gira al pasar el cursor */
 .boton--destacado::after {
   content: '';
   flex-shrink: 0;
@@ -421,7 +416,6 @@ button {
   transform: rotate(360deg);
 }
 
-/* Si el botón ya trae su propio icono (+), no se repite la rueda */
 .boton--destacado:has(.boton__icono)::after {
   display: none;
 }
@@ -444,7 +438,6 @@ button {
   background: #b91c1c;
 }
 
-/* Botones de texto: planos, con subrayado ondulado al pasar el cursor */
 .boton--texto,
 .boton--texto-peligro {
   background: transparent;
@@ -571,7 +564,6 @@ button {
   color: var(--color-texto-suave);
 }
 
-/* Foco: la sombra se vuelve azul y más grande (visible sin depender solo del color) */
 .campo__control:focus-visible {
   outline: 3px solid var(--color-foco);
   outline-offset: 2px;
@@ -922,7 +914,6 @@ button {
   gap: 1.25rem clamp(1rem, 1.6vw, 1.5rem);
 }
 
-/* Banner superior: texto y acciones a la izquierda, imagen grande a la derecha */
 .panel__hero {
   grid-area: hero;
   display: grid;
@@ -1175,7 +1166,6 @@ a.icono-recuadro:hover {
   border-radius: var(--radio-borde-pastilla);
 }
 
-/* Relleno a rayas diagonales, como cinta de señalización de carretera */
 .indicador__relleno {
   display: block;
   height: 100%;
@@ -1232,7 +1222,6 @@ a.icono-recuadro:hover {
 .panel__escena::before {
   content: '';
   position: absolute;
-  /* Línea discontinua de carretera bajo los autos */
   right: 2%;
   bottom: 0.6rem;
   left: 2%;
@@ -1257,7 +1246,6 @@ a.icono-recuadro:hover {
   pointer-events: none;
 }
 
-/* La imagen trae ~17 % de margen transparente arriba y ~9 % abajo: se recorta para que los autos llenen el recuadro */
 .panel__auto {
   position: relative;
   z-index: 1;

@@ -6,9 +6,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
-/**
- * CORS según CORS_ALLOWED_ORIGIN (lista separada por comas, o *). Responde 200 a los preflight OPTIONS.
- */
 return function (ResponseFactoryInterface $fabrica_respuestas): callable {
     return function (Request $peticion, RequestHandler $manejador) use ($fabrica_respuestas): Response {
         $respuesta = $peticion->getMethod() === 'OPTIONS'

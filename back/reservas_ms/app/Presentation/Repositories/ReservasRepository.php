@@ -8,9 +8,6 @@ use App\Support\Respuesta;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-/**
- * Manejadores HTTP de /reservas: leen la petición, llaman al controlador y arman la respuesta.
- */
 class ReservasRepository
 {
     public function listar(Request $peticion, Response $respuesta): Response
@@ -50,7 +47,6 @@ class ReservasRepository
         return Respuesta::json($respuesta, 200, 'Reserva cancelada correctamente.', $this->controlador($peticion)->cancel_reserva((int) $args['id']));
     }
 
-    /** Se crea por petición: lleva el token del usuario para reenviarlo a clientes_ms y vehiculos_ms. */
     private function controlador(Request $peticion): ReservasController
     {
         return new ReservasController(Peticion::token($peticion));

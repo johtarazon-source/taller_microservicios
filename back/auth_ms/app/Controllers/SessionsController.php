@@ -8,9 +8,6 @@ use App\Exceptions\UnauthorizedException;
 use App\Models\Tokens;
 use DateTimeImmutable;
 
-/**
- * Inicio/cierre de sesión y validación de tokens (portado de SessionsController del monolito).
- */
 class SessionsController
 {
     private const ADMIN_USUARIO_POR_DEFECTO = 'admin';

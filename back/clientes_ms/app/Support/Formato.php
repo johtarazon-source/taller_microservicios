@@ -7,7 +7,6 @@ use DateTimeZone;
 
 class Formato
 {
-    /** Convierte un timestamp de BD (zona de la app) a ISO-8601 UTC, igual que el monolito. */
     public static function marca_tiempo(?string $valor): ?string
     {
         if ($valor === null) {

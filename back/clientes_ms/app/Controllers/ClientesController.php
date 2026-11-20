@@ -8,10 +8,6 @@ use App\Exceptions\NotFoundException;
 use App\Models\Cliente;
 use App\Support\Validator;
 
-/**
- * Reglas de negocio de clientes. clientes_ms solo tiene su propia base (clientes_db): las reservas
- * del cliente (historial y verificación al eliminar) se consultan a reservas_ms por HTTP.
- */
 class ClientesController
 {
     private ReservasClient $reservas;
@@ -21,9 +17,6 @@ class ClientesController
         $this->reservas = $reservas ?? new ReservasClient($token);
     }
 
-    /**
-     * @param string|null $ids ids separados por coma (`1,2,3`); lo usa reservas_ms para traer varios clientes de una vez
-     */
     public function get_clientes_all(?string $buscar, ?string $ids = null): array
     {
         $consulta = Cliente::query();

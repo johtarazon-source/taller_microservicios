@@ -9,10 +9,6 @@ use App\Models\Vehiculo;
 use App\Support\Validator;
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * Reglas de negocio de vehículos. vehiculos_ms solo tiene su propia base (vehiculos_db): lo que depende de
- * las reservas (qué vehículos están alquilados, el historial) se consulta a reservas_ms por HTTP.
- */
 class VehiculosController
 {
     private ReservasClient $reservas;
@@ -48,10 +44,6 @@ class VehiculosController
         return $this->a_arreglo($consulta->orderBy('marca')->orderBy('modelo')->get()->all(), $ocupados);
     }
 
-    /**
-     * Vehículos por ids (`ids=1,2,3`) con el estado guardado (disponible o mantenimiento). Es la ruta que usa
-     * reservas_ms: no consulta reservas, así los dos servicios nunca quedan esperándose entre sí.
-     */
     public function get_vehiculos_lote(?string $ids): array
     {
         $lista = array_values(array_filter(array_map('intval', explode(',', (string) $ids)), fn (int $id): bool => $id > 0));
@@ -93,7 +85,6 @@ class VehiculosController
         return Vehiculo::findOrFail($id)->to_array($ocupado);
     }
 
-    /** Lo usa reservas_ms al devolver un vehículo que necesita revisión. No consulta reservas. */
     public function enviar_a_mantenimiento(int $id): array
     {
         $this->buscar_o_lanzar_no_encontrado($id)->update(['estado' => Vehiculo::MANTENIMIENTO]);
@@ -162,16 +153,11 @@ class VehiculosController
         return in_array($id, $this->reservas->ids_ocupados(), true);
     }
 
-    /**
-     * @param Vehiculo[] $vehiculos
-     * @param int[]      $ocupados  ids de los vehículos alquilados ahora
-     */
     private function a_arreglo(array $vehiculos, array $ocupados): array
     {
         return array_map(fn (Vehiculo $v): array => $v->to_array(in_array((int) $v->getKey(), $ocupados, true)), $vehiculos);
     }
 
-    /** "alquilado" y "disponible" se derivan de las reservas; solo "mantenimiento" está guardado. */
     private function filtrar_por_estado(Builder $consulta, string $estado, array $ocupados): void
     {
         match ($estado) {

@@ -18,10 +18,6 @@ class Reserva extends Model
 
     protected $fillable = ['cliente_id', 'vehiculo_id', 'fecha_inicio', 'fecha_fin', 'estado'];
 
-    /**
-     * Reservas activas que ocupan vehículos. Sin fechas: las ya iniciadas (vehículo alquilado ahora).
-     * Con rango: las que se cruzan con él; una activa vencida sin devolver sigue ocupando el vehículo.
-     */
     public static function activas_que_ocupan(?string $inicio = null, ?string $fin = null): Builder
     {
         $consulta = self::query()->where('estado', self::ACTIVA);
@@ -36,7 +32,6 @@ class Reserva extends Model
             });
     }
 
-    /** @return int[] ids de los vehículos ocupados según activas_que_ocupan() */
     public static function ids_vehiculos_ocupados(?string $inicio = null, ?string $fin = null): array
     {
         return self::activas_que_ocupan($inicio, $fin)->distinct()->pluck('vehiculo_id')->map(fn ($id): int => (int) $id)->all();
@@ -64,7 +59,6 @@ class Reserva extends Model
         return $this->getAttribute('fecha_inicio') > $hoy ? self::PROGRAMADA : self::ACTIVA;
     }
 
-    /** Incrusta el cliente y/o el vehículo (datos que vienen de sus microservicios) solo si se reciben. */
     public function to_array(?array $cliente = null, ?array $vehiculo = null): array
     {
         $datos = [
@@ -90,10 +84,6 @@ class Reserva extends Model
         return $datos;
     }
 
-    /**
-     * @param array<int, array>|null $clientes  clientes indexados por id (null: no incrustar)
-     * @param array<int, array>|null $vehiculos vehículos indexados por id (null: no incrustar)
-     */
     public static function lista_a_array(iterable $reservas, ?array $clientes = null, ?array $vehiculos = null): array
     {
         $lista = [];

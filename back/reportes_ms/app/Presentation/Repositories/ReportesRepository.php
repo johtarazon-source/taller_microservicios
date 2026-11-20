@@ -8,9 +8,6 @@ use App\Support\Respuesta;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-/**
- * Manejador HTTP de /resumen.
- */
 class ReportesRepository
 {
     public function resumen(Request $peticion, Response $respuesta): Response
