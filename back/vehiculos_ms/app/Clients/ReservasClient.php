@@ -2,10 +2,6 @@
 
 namespace App\Clients;
 
-/**
- * Cliente HTTP hacia reservas_ms: vehiculos_ms no lee la base de reservas, la consulta por API.
- * El historial se pide con embeber=cliente para que reservas_ms solo llame a clientes_ms (nunca de vuelta aquí).
- */
 class ReservasClient extends ServicioClient
 {
     public function __construct(string $token)
@@ -13,11 +9,6 @@ class ReservasClient extends ServicioClient
         parent::__construct($token, 'reservas', 'RESERVAS_MS_URL', 'http://127.0.0.1:8004');
     }
 
-    /**
-     * Ids de vehículos ocupados: sin fechas, los alquilados hoy; con rango, los que se cruzan con él.
-     *
-     * @return int[]
-     */
     public function ids_ocupados(?string $fecha_inicio = null, ?string $fecha_fin = null): array
     {
         $consulta = array_filter(['fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin], fn (?string $valor): bool => $valor !== null);
@@ -31,7 +22,6 @@ class ReservasClient extends ServicioClient
         return $this->listar(['vehiculo_id' => $vehiculo_id, 'embeber' => 'ninguno', 'limite' => 1]) !== [];
     }
 
-    /** Reservas del vehículo (la más reciente primero) con el cliente incrustado. */
     public function historial(int $vehiculo_id): array
     {
         return $this->listar(['vehiculo_id' => $vehiculo_id, 'embeber' => 'cliente']);

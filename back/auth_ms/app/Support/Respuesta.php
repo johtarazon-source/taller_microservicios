@@ -4,9 +4,6 @@ namespace App\Support;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-/**
- * Contrato de respuesta común a todos los microservicios: { ok, mensaje, data }.
- */
 class Respuesta
 {
     public static function json(Response $respuesta, int $codigo_estado, string $mensaje, mixed $datos = null, bool $exito = true): Response

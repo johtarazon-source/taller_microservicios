@@ -5,10 +5,6 @@ namespace App\Clients;
 use App\Config\Env;
 use App\Exceptions\AppException;
 
-/**
- * Base de los clientes HTTP (curl) hacia otros microservicios. Reenvía el token Bearer del usuario
- * (cada servicio lo valida con auth_ms) y traduce los fallos de red a 503.
- */
 abstract class ServicioClient
 {
     private const LIMITE_IDS_POR_PETICION = 200;
@@ -21,9 +17,6 @@ abstract class ServicioClient
     ) {
     }
 
-    /**
-     * @return array{0: int, 1: array} código HTTP y cuerpo { ok, mensaje, data } decodificado
-     */
     protected function solicitar(string $metodo, string $ruta, array $consulta = [], ?array $cuerpo = null): array
     {
         $url = rtrim((string) Env::obtener($this->variable_url, $this->url_defecto), '/') . $ruta;
@@ -62,7 +55,6 @@ abstract class ServicioClient
         return [$codigo_estado, $respuesta];
     }
 
-    /** Devuelve `data` si la respuesta fue 2xx; si no, propaga el error del servicio remoto. */
     protected function datos(int $codigo_estado, array $respuesta): mixed
     {
         if ($codigo_estado >= 200 && $codigo_estado < 300) {
@@ -74,7 +66,6 @@ abstract class ServicioClient
         throw new AppException((string) ($respuesta['mensaje'] ?? "Error en el servicio de {$this->nombre}."), $codigo_estado, $errores);
     }
 
-    /** Normaliza una lista de ids y la parte en bloques para no exceder el largo de la URL. */
     protected function bloques_de_ids(array $ids): array
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids), fn (int $id): bool => $id > 0)));

@@ -5,9 +5,6 @@ namespace App\Clients;
 use App\Config\Env;
 use App\Exceptions\AppException;
 
-/**
- * Cliente HTTP (curl) hacia auth_ms: valida el token Bearer recibido.
- */
 class AuthClient
 {
     public function validar(string $token): bool

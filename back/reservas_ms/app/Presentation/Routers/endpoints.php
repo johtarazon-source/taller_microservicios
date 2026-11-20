@@ -12,7 +12,6 @@ use function App\Config\configurar_base_de_datos;
 return function (App $app): void {
     $auth = require __DIR__ . '/../../Middlewares/auth.php';
 
-    // Conecta la BD solo después de autenticar (las solicitudes rechazadas no la tocan).
     $base_de_datos = function (Request $peticion, RequestHandler $manejador): Response {
         configurar_base_de_datos();
 

@@ -6,10 +6,6 @@ use App\Clients\ClientesClient;
 use App\Clients\ReservasClient;
 use App\Clients\VehiculosClient;
 
-/**
- * Resumen general del panel. reportes_ms no tiene base de datos propia: arma el resumen con lo que
- * responden vehiculos_ms, clientes_ms y reservas_ms.
- */
 class ReportesController
 {
     private const LIMITE_MARCAS = 8;
@@ -57,7 +53,6 @@ class ReportesController
         return ['total' => array_sum($conteo)] + $conteo;
     }
 
-    /** Marcas distintas (sin distinguir mayúsculas), ordenadas alfabéticamente, hasta el límite del panel. */
     private function marcas(array $vehiculos): array
     {
         $marcas = [];

@@ -11,16 +11,11 @@ use App\Support\Validator;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Collection;
 
-/**
- * Reglas de negocio de reservas. reservas_ms solo tiene su propia base (reservas_db): los datos de
- * clientes y vehículos se consultan a sus microservicios por HTTP.
- */
 class ReservasController
 {
     private const LIMITE_RECIENTES = 5;
     private const SEGUNDOS_ESPERA_BLOQUEO = 5;
 
-    /** Datos de otros servicios que se incrustan en cada reserva (parámetro `embeber`). */
     private const EMBEBER_AMBOS = 'ambos';
     private const EMBEBER_CLIENTE = 'cliente';
     private const EMBEBER_VEHICULO = 'vehiculo';
@@ -35,10 +30,6 @@ class ReservasController
         $this->vehiculos = $vehiculos ?? new VehiculosClient($token);
     }
 
-    /**
-     * Filtros: estado, cliente_id, vehiculo_id, limite y embeber (ambos|cliente|vehiculo|ninguno).
-     * Los demás microservicios piden `embeber` parcial para no volver a llamarse entre sí.
-     */
     public function get_reservas_all(array $filtros): array
     {
         $validador = new Validator($filtros);
@@ -78,10 +69,6 @@ class ReservasController
         return $this->a_arreglo(new Collection([$this->buscar_o_lanzar_no_encontrado($id)]))[0];
     }
 
-    /**
-     * Ids de vehículos ocupados por reservas activas. Sin fechas: los alquilados hoy; con
-     * fecha_inicio y fecha_fin: los que se cruzan con ese rango. No llama a otros servicios.
-     */
     public function get_vehiculos_ocupados(array $filtros): array
     {
         $validador = new Validator($filtros);
@@ -97,7 +84,6 @@ class ReservasController
         return ['vehiculo_ids' => Reserva::ids_vehiculos_ocupados($inicio, $fin)];
     }
 
-    /** Cifras y listas de reservas para el panel de reportes_ms. */
     public function get_resumen(): array
     {
         $hoy = Reserva::hoy();
@@ -166,7 +152,6 @@ class ReservasController
             throw new ConflictException('La reserva aún no ha comenzado; si no se va a usar, cancélela.');
         }
 
-        // Si vehiculos_ms falla, la excepción revierte la devolución: la reserva sigue activa y se puede reintentar.
         Capsule::connection()->transaction(function () use ($reserva, $mantenimiento): void {
             $reserva->update(['estado' => Reserva::COMPLETADA]);
 
@@ -186,10 +171,6 @@ class ReservasController
         return $this->get_reserva($id);
     }
 
-    /**
-     * Verifica el cruce de fechas e inserta con un bloqueo por vehículo (GET_LOCK), porque el vehículo vive
-     * en otra base y ya no se puede bloquear su fila con FOR UPDATE.
-     */
     private function guardar_si_esta_libre(int $cliente_id, int $vehiculo_id, string $fecha_inicio, string $fecha_fin): int
     {
         $conexion = Capsule::connection();
@@ -220,7 +201,6 @@ class ReservasController
         }
     }
 
-    /** Convierte las reservas a arreglos incrustando clientes/vehículos según `$embeber`. */
     private function a_arreglo(Collection $reservas, string $embeber = self::EMBEBER_AMBOS): array
     {
         [$clientes, $vehiculos] = $this->cargar_relaciones($reservas, $embeber);
@@ -228,13 +208,6 @@ class ReservasController
         return Reserva::lista_a_array($reservas, $clientes, $vehiculos);
     }
 
-    /**
-     * Pide a clientes_ms y vehiculos_ms (una vez por lote) los datos que se incrustan en las reservas.
-     * El estado del vehículo se completa aquí: vehiculos_ms guarda solo disponible/mantenimiento y
-     * "alquilado" se deriva de las reservas activas ya iniciadas, que son de este servicio.
-     *
-     * @return array{0: array<int, array>|null, 1: array<int, array>|null} clientes y vehículos por id
-     */
     private function cargar_relaciones(Collection $reservas, string $embeber): array
     {
         $clientes = null;

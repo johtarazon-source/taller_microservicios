@@ -9,10 +9,6 @@ use PDOException;
 const ERROR_BASE_DE_DATOS_INEXISTENTE = 1049;
 const TABLAS_ESPERADAS = ['reservas'];
 
-/**
- * Conecta Eloquent a la base de datos propia de este servicio (reservas_db). Si la base o su tabla faltan,
- * las crea aplicando database/schema.sql.
- */
 function configurar_base_de_datos(): void
 {
     static $configurada = false;

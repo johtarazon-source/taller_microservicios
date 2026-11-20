@@ -2,10 +2,6 @@
 
 namespace App\Clients;
 
-/**
- * Cliente HTTP hacia vehiculos_ms: reservas_ms no lee la base de vehículos, la consulta por API.
- * Solo usa rutas que no vuelven a llamar a reservas_ms (/vehiculos/lote y /vehiculos/{id}/mantenimiento).
- */
 class VehiculosClient extends ServicioClient
 {
     public const DISPONIBLE = 'disponible';
@@ -17,11 +13,6 @@ class VehiculosClient extends ServicioClient
         parent::__construct($token, 'vehículos', 'VEHICULOS_MS_URL', 'http://127.0.0.1:8002');
     }
 
-    /**
-     * Vehículos con el estado guardado (disponible o mantenimiento; "alquilado" lo deriva reservas_ms).
-     *
-     * @return array<int, array> vehículos indexados por id (los que no existen no aparecen)
-     */
     public function por_ids(array $ids): array
     {
         $vehiculos = [];

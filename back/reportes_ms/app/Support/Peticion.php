@@ -7,7 +7,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Peticion
 {
-    /** Token Bearer de la cabecera Authorization ('' si no viene). */
     public static function token(Request $peticion): string
     {
         $cabecera = $peticion->getHeaderLine('Authorization');
@@ -15,7 +14,6 @@ class Peticion
         return str_starts_with($cabecera, 'Bearer ') ? trim(substr($cabecera, 7)) : '';
     }
 
-    /** Cuerpo JSON (o formulario) como arreglo; 400 si no es un JSON válido. */
     public static function cuerpo(Request $peticion): array
     {
         $cuerpo_crudo = (string) $peticion->getBody();
@@ -36,7 +34,6 @@ class Peticion
         return (array) $cuerpo_interpretado;
     }
 
-    /** Parámetro de query como texto (ignora arreglos); null si no viene. */
     public static function consulta(Request $peticion, string $nombre): ?string
     {
         $valor = $peticion->getQueryParams()[$nombre] ?? null;
