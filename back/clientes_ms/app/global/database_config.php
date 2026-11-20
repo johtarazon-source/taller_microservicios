@@ -70,7 +70,7 @@ function asegurar_esquema(string $servidor, int $puerto, string $base_de_datos, 
         return;
     }
 
-    $esquema = (string) file_get_contents(dirname(__DIR__, 2) . '/database/schema.sql');
+    $esquema = (string) file_get_contents(dirname(__DIR__, 2) . '/database/clientes_ms.sql');
 
     foreach (explode(';', $esquema) as $sentencia) {
         $sentencia = trim($sentencia);
