@@ -1,0 +1,16 @@
+# Dependencias de Composer
+vendor/
+
+# Configuración local y datos de ejecución
+back/*/.env
+back/auth_ms/storage/
+
+# Archivos de sistema operativo y editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Capturas temporales de pruebas con el navegador (Playwright)
+.playwright-mcp/
