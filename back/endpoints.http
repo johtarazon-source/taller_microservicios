@@ -1,0 +1,162 @@
+# Microservicios de alquiler de vehículos. Inicie los 5 servicios con back/iniciar_servicios.ps1.
+# Cada servicio escucha en su propio puerto; las rutas son las mismas del monolito (sin /api).
+@auth = http://127.0.0.1:8001
+@vehiculos = http://127.0.0.1:8002
+@clientes = http://127.0.0.1:8003
+@reservas = http://127.0.0.1:8004
+@reportes = http://127.0.0.1:8005
+
+# Pegue aquí el token devuelto por "Iniciar sesión".
+@token = PEGUE_AQUI_EL_TOKEN
+
+### Iniciar sesión
+POST {{auth}}/auth/login
+Content-Type: application/json
+
+{
+    "usuario": "admin",
+    "password": "admin1234"
+}
+
+### Resumen general
+GET {{reportes}}/resumen
+Authorization: Bearer {{token}}
+
+### Consultar todos los vehículos
+GET {{vehiculos}}/vehiculos
+Authorization: Bearer {{token}}
+
+GET {{vehiculos}}/vehiculos?buscar=toyota
+Authorization: Bearer {{token}}
+
+GET {{vehiculos}}/vehiculos?estado=disponible
+Authorization: Bearer {{token}}
+
+### Consultar vehículos disponibles en un rango de fechas
+GET {{vehiculos}}/vehiculos/disponibles?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
+Authorization: Bearer {{token}}
+
+### Consultar un vehículo por id
+GET {{vehiculos}}/vehiculos/1
+Authorization: Bearer {{token}}
+
+### Crear vehículo (estado opcional: disponible o mantenimiento)
+POST {{vehiculos}}/vehiculos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "marca": "Toyota",
+    "modelo": "Corolla",
+    "anio": 2022,
+    "categoria": "Sedán",
+    "estado": "disponible"
+}
+
+### Modificar vehículo
+PUT {{vehiculos}}/vehiculos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "marca": "Toyota",
+    "modelo": "Corolla Cross",
+    "anio": 2023,
+    "categoria": "SUV",
+    "estado": "mantenimiento"
+}
+
+### Eliminar vehículo
+DELETE {{vehiculos}}/vehiculos/1
+Authorization: Bearer {{token}}
+
+### Historial de alquileres de un vehículo
+GET {{vehiculos}}/vehiculos/1/historial
+Authorization: Bearer {{token}}
+
+
+### Consultar todos los clientes
+GET {{clientes}}/clientes
+Authorization: Bearer {{token}}
+
+### Buscar clientes por nombre, correo, teléfono o licencia
+GET {{clientes}}/clientes?buscar=maria
+Authorization: Bearer {{token}}
+
+### Consultar un cliente por id
+GET {{clientes}}/clientes/1
+Authorization: Bearer {{token}}
+
+### Crear cliente (la licencia es obligatoria para poder reservar)
+POST {{clientes}}/clientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "María Pérez",
+    "telefono": "3001234567",
+    "correo": "maria@example.com",
+    "numero_licencia": "LIC-12345"
+}
+
+### Modificar cliente
+PUT {{clientes}}/clientes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "María Pérez Gómez",
+    "telefono": "3007654321",
+    "correo": "mariaPerez@hotmail.com",
+    "numero_licencia": "12312345"
+}
+
+### Eliminar cliente
+DELETE {{clientes}}/clientes/1
+Authorization: Bearer {{token}}
+
+### Historial de alquileres de un cliente
+GET {{clientes}}/clientes/1/historial
+Authorization: Bearer {{token}}
+
+
+### Consultar todas las reservas
+GET {{reservas}}/reservas
+Authorization: Bearer {{token}}
+
+### Filtrar reservas por estado (activa, completada, cancelada)
+GET {{reservas}}/reservas?estado=activa
+Authorization: Bearer {{token}}
+
+### Filtrar reservas por cliente o vehículo
+GET {{reservas}}/reservas?cliente_id=1&vehiculo_id=1
+Authorization: Bearer {{token}}
+
+### Consultar una reserva por id
+GET {{reservas}}/reservas/1
+Authorization: Bearer {{token}}
+
+### Crear reserva
+POST {{reservas}}/reservas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "cliente_id": 1,
+    "vehiculo_id": 1,
+    "fecha_inicio": "2026-12-01",
+    "fecha_fin": "2026-12-05"
+}
+
+### Registrar devolución (mantenimiento: true envía el vehículo a mantenimiento)
+POST {{reservas}}/reservas/1/devolucion
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "mantenimiento": false
+}
+
+### Cancelar reserva
+POST {{reservas}}/reservas/1/cancelacion
+Authorization: Bearer {{token}}
