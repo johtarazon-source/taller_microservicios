@@ -13,21 +13,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class VehiculosRepository
 {
-    private VehiculosController $controlador;
-
-    public function __construct()
-    {
-        $this->controlador = new VehiculosController();
-    }
-
     public function listar(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 200, 'Vehículos obtenidos.', $this->controlador->get_vehiculos_all($peticion->getQueryParams()));
+        return Respuesta::json($respuesta, 200, 'Vehículos obtenidos.', $this->controlador($peticion)->get_vehiculos_all($peticion->getQueryParams()));
     }
 
     public function disponibles(Request $peticion, Response $respuesta): Response
     {
-        $datos = $this->controlador->get_vehiculos_disponibles(
+        $datos = $this->controlador($peticion)->get_vehiculos_disponibles(
             Peticion::consulta($peticion, 'fecha_inicio'),
             Peticion::consulta($peticion, 'fecha_fin')
         );
@@ -35,30 +28,46 @@ class VehiculosRepository
         return Respuesta::json($respuesta, 200, 'Vehículos disponibles obtenidos.', $datos);
     }
 
+    public function lote(Request $peticion, Response $respuesta): Response
+    {
+        return Respuesta::json($respuesta, 200, 'Vehículos obtenidos.', $this->controlador($peticion)->get_vehiculos_lote(Peticion::consulta($peticion, 'ids')));
+    }
+
     public function crear(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 201, 'Vehículo registrado correctamente.', $this->controlador->save_vehiculo(Peticion::cuerpo($peticion)));
+        return Respuesta::json($respuesta, 201, 'Vehículo registrado correctamente.', $this->controlador($peticion)->save_vehiculo(Peticion::cuerpo($peticion)));
     }
 
     public function obtener(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Vehículo obtenido.', $this->controlador->get_vehiculo((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Vehículo obtenido.', $this->controlador($peticion)->get_vehiculo((int) $args['id']));
     }
 
     public function actualizar(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Vehículo actualizado correctamente.', $this->controlador->update_vehiculo((int) $args['id'], Peticion::cuerpo($peticion)));
+        return Respuesta::json($respuesta, 200, 'Vehículo actualizado correctamente.', $this->controlador($peticion)->update_vehiculo((int) $args['id'], Peticion::cuerpo($peticion)));
     }
 
     public function eliminar(Request $peticion, Response $respuesta, array $args): Response
     {
-        $this->controlador->delete_vehiculo((int) $args['id']);
+        $this->controlador($peticion)->delete_vehiculo((int) $args['id']);
 
         return Respuesta::json($respuesta, 200, 'Vehículo eliminado correctamente.');
     }
 
+    public function mantenimiento(Request $peticion, Response $respuesta, array $args): Response
+    {
+        return Respuesta::json($respuesta, 200, 'Vehículo enviado a mantenimiento.', $this->controlador($peticion)->enviar_a_mantenimiento((int) $args['id']));
+    }
+
     public function historial(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Historial del vehículo obtenido.', $this->controlador->get_historial((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Historial del vehículo obtenido.', $this->controlador($peticion)->get_historial((int) $args['id']));
+    }
+
+    /** Se crea por petición: lleva el token del usuario para reenviarlo a reservas_ms. */
+    private function controlador(Request $peticion): VehiculosController
+    {
+        return new VehiculosController(Peticion::token($peticion));
     }
 }

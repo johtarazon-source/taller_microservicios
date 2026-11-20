@@ -20,6 +20,8 @@ return function (App $app): void {
     };
 
     $app->group('/reservas', function (RouteCollectorProxy $grupo): void {
+        $grupo->get('/ocupados', ReservasRepository::class . ':ocupados');
+        $grupo->get('/resumen', ReservasRepository::class . ':resumen');
         $grupo->get('', ReservasRepository::class . ':listar');
         $grupo->post('', ReservasRepository::class . ':crear');
         $grupo->get('/{id:[0-9]+}', ReservasRepository::class . ':obtener');

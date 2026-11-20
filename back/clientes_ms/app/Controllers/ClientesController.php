@@ -2,20 +2,36 @@
 
 namespace App\Controllers;
 
+use App\Clients\ReservasClient;
 use App\Exceptions\ConflictException;
 use App\Exceptions\NotFoundException;
 use App\Models\Cliente;
-use App\Models\Reserva;
 use App\Support\Validator;
 
 /**
- * Reglas de negocio de clientes (portadas de ClientesController del monolito).
+ * Reglas de negocio de clientes. clientes_ms solo tiene su propia base (clientes_db): las reservas
+ * del cliente (historial y verificación al eliminar) se consultan a reservas_ms por HTTP.
  */
 class ClientesController
 {
-    public function get_clientes_all(?string $buscar): array
+    private ReservasClient $reservas;
+
+    public function __construct(string $token, ?ReservasClient $reservas = null)
+    {
+        $this->reservas = $reservas ?? new ReservasClient($token);
+    }
+
+    /**
+     * @param string|null $ids ids separados por coma (`1,2,3`); lo usa reservas_ms para traer varios clientes de una vez
+     */
+    public function get_clientes_all(?string $buscar, ?string $ids = null): array
     {
         $consulta = Cliente::query();
+
+        if ($ids !== null) {
+            $lista = array_values(array_filter(array_map('intval', explode(',', $ids)), fn (int $id): bool => $id > 0));
+            $consulta->whereIn('id', $lista);
+        }
 
         if ($buscar !== null && trim($buscar) !== '') {
             $patron = '%' . trim($buscar) . '%';
@@ -57,7 +73,7 @@ class ClientesController
     {
         $cliente = $this->buscar_o_lanzar_no_encontrado($id);
 
-        if ($cliente->reservas()->exists()) {
+        if ($this->reservas->tiene_reservas($id)) {
             throw new ConflictException('El cliente tiene reservas registradas y no se puede eliminar sin perder su historial.');
         }
 
@@ -68,13 +84,7 @@ class ClientesController
     {
         $this->buscar_o_lanzar_no_encontrado($id);
 
-        $reservas = Reserva::with('vehiculo')
-            ->where('cliente_id', $id)
-            ->orderByDesc('fecha_inicio')
-            ->orderByDesc('id')
-            ->get();
-
-        return Reserva::lista_a_array($reservas);
+        return $this->reservas->historial($id);
     }
 
     private function buscar_o_lanzar_no_encontrado(int $id): Cliente

@@ -21,11 +21,13 @@ return function (App $app): void {
 
     $app->group('/vehiculos', function (RouteCollectorProxy $grupo): void {
         $grupo->get('/disponibles', VehiculosRepository::class . ':disponibles');
+        $grupo->get('/lote', VehiculosRepository::class . ':lote');
         $grupo->get('', VehiculosRepository::class . ':listar');
         $grupo->post('', VehiculosRepository::class . ':crear');
         $grupo->get('/{id:[0-9]+}', VehiculosRepository::class . ':obtener');
         $grupo->put('/{id:[0-9]+}', VehiculosRepository::class . ':actualizar');
         $grupo->delete('/{id:[0-9]+}', VehiculosRepository::class . ':eliminar');
         $grupo->get('/{id:[0-9]+}/historial', VehiculosRepository::class . ':historial');
+        $grupo->post('/{id:[0-9]+}/mantenimiento', VehiculosRepository::class . ':mantenimiento');
     })->add($base_de_datos)->add($auth);
 };

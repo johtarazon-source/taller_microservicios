@@ -1,27 +1,7 @@
-CREATE DATABASE IF NOT EXISTS alquiler_vehiculos_db;
-USE alquiler_vehiculos_db;
+CREATE DATABASE IF NOT EXISTS reservas_db;
+USE reservas_db;
 
-CREATE TABLE IF NOT EXISTS vehiculos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    marca VARCHAR(100) NOT NULL,
-    modelo VARCHAR(100) NOT NULL,
-    anio YEAR NOT NULL,
-    categoria VARCHAR(50),
-    estado ENUM('disponible', 'alquilado', 'mantenimiento') DEFAULT 'disponible',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS clientes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(150) NOT NULL,
-    telefono VARCHAR(50),
-    correo VARCHAR(100),
-    numero_licencia VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
+-- cliente_id y vehiculo_id son referencias lógicas a clientes_ms y vehiculos_ms (bases distintas): sin claves foráneas.
 CREATE TABLE IF NOT EXISTS reservas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
@@ -31,6 +11,6 @@ CREATE TABLE IF NOT EXISTS reservas (
     estado ENUM('activa', 'completada', 'cancelada') DEFAULT 'activa',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
-    FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id) ON DELETE CASCADE
+    INDEX idx_reservas_cliente (cliente_id),
+    INDEX idx_reservas_vehiculo (vehiculo_id, estado)
 );

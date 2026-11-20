@@ -7,11 +7,11 @@ use PDO;
 use PDOException;
 
 const ERROR_BASE_DE_DATOS_INEXISTENTE = 1049;
-const TABLAS_ESPERADAS = ['vehiculos', 'clientes', 'reservas'];
+const TABLAS_ESPERADAS = ['reservas'];
 
 /**
- * Conecta Eloquent a la base compartida. Si la base o las tablas faltan, las crea
- * aplicando database/schema.sql (equivalente a AlquilerDb::crear_tablas_si_faltan del monolito).
+ * Conecta Eloquent a la base de datos propia de este servicio (reservas_db). Si la base o su tabla faltan,
+ * las crea aplicando database/schema.sql.
  */
 function configurar_base_de_datos(): void
 {
@@ -23,7 +23,7 @@ function configurar_base_de_datos(): void
 
     $servidor = Env::obtener('DB_HOST', '127.0.0.1');
     $puerto = (int) Env::obtener('DB_PORT', '3306');
-    $base_de_datos = Env::obtener('DB_DATABASE', 'alquiler_vehiculos_db');
+    $base_de_datos = Env::obtener('DB_DATABASE', 'reservas_db');
     $usuario = Env::obtener('DB_USERNAME', 'root');
     $contrasena = Env::obtener('DB_PASSWORD', '');
 

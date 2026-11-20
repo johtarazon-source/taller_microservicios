@@ -13,42 +13,41 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class ClientesRepository
 {
-    private ClientesController $controlador;
-
-    public function __construct()
-    {
-        $this->controlador = new ClientesController();
-    }
-
     public function listar(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 200, 'Clientes obtenidos.', $this->controlador->get_clientes_all(Peticion::consulta($peticion, 'buscar')));
+        return Respuesta::json($respuesta, 200, 'Clientes obtenidos.', $this->controlador($peticion)->get_clientes_all(Peticion::consulta($peticion, 'buscar'), Peticion::consulta($peticion, 'ids')));
     }
 
     public function crear(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 201, 'Cliente registrado correctamente.', $this->controlador->save_cliente(Peticion::cuerpo($peticion)));
+        return Respuesta::json($respuesta, 201, 'Cliente registrado correctamente.', $this->controlador($peticion)->save_cliente(Peticion::cuerpo($peticion)));
     }
 
     public function obtener(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Cliente obtenido.', $this->controlador->get_cliente((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Cliente obtenido.', $this->controlador($peticion)->get_cliente((int) $args['id']));
     }
 
     public function actualizar(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Cliente actualizado correctamente.', $this->controlador->update_cliente((int) $args['id'], Peticion::cuerpo($peticion)));
+        return Respuesta::json($respuesta, 200, 'Cliente actualizado correctamente.', $this->controlador($peticion)->update_cliente((int) $args['id'], Peticion::cuerpo($peticion)));
     }
 
     public function eliminar(Request $peticion, Response $respuesta, array $args): Response
     {
-        $this->controlador->delete_cliente((int) $args['id']);
+        $this->controlador($peticion)->delete_cliente((int) $args['id']);
 
         return Respuesta::json($respuesta, 200, 'Cliente eliminado correctamente.');
     }
 
     public function historial(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Historial del cliente obtenido.', $this->controlador->get_historial((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Historial del cliente obtenido.', $this->controlador($peticion)->get_historial((int) $args['id']));
+    }
+
+    /** Se crea por petición: lleva el token del usuario para reenviarlo a reservas_ms. */
+    private function controlador(Request $peticion): ClientesController
+    {
+        return new ClientesController(Peticion::token($peticion));
     }
 }

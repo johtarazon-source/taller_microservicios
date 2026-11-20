@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Support\Formato;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reserva extends Model
 {
@@ -18,14 +18,28 @@ class Reserva extends Model
 
     protected $fillable = ['cliente_id', 'vehiculo_id', 'fecha_inicio', 'fecha_fin', 'estado'];
 
-    public function cliente(): BelongsTo
+    /**
+     * Reservas activas que ocupan vehículos. Sin fechas: las ya iniciadas (vehículo alquilado ahora).
+     * Con rango: las que se cruzan con él; una activa vencida sin devolver sigue ocupando el vehículo.
+     */
+    public static function activas_que_ocupan(?string $inicio = null, ?string $fin = null): Builder
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id');
+        $consulta = self::query()->where('estado', self::ACTIVA);
+
+        if ($inicio === null || $fin === null) {
+            return $consulta->where('fecha_inicio', '<=', self::hoy());
+        }
+
+        return $consulta->where('fecha_inicio', '<=', $fin)
+            ->where(function (Builder $q) use ($inicio): void {
+                $q->where('fecha_fin', '>=', $inicio)->orWhere('fecha_fin', '<', self::hoy());
+            });
     }
 
-    public function vehiculo(): BelongsTo
+    /** @return int[] ids de los vehículos ocupados según activas_que_ocupan() */
+    public static function ids_vehiculos_ocupados(?string $inicio = null, ?string $fin = null): array
     {
-        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
+        return self::activas_que_ocupan($inicio, $fin)->distinct()->pluck('vehiculo_id')->map(fn ($id): int => (int) $id)->all();
     }
 
     public static function hoy(): string
@@ -50,8 +64,8 @@ class Reserva extends Model
         return $this->getAttribute('fecha_inicio') > $hoy ? self::PROGRAMADA : self::ACTIVA;
     }
 
-    /** Incrusta cliente/vehículo solo si la relación fue cargada (with), igual que el monolito. */
-    public function to_array(): array
+    /** Incrusta el cliente y/o el vehículo (datos que vienen de sus microservicios) solo si se reciben. */
+    public function to_array(?array $cliente = null, ?array $vehiculo = null): array
     {
         $datos = [
             'id' => (int) $this->getKey(),
@@ -65,23 +79,30 @@ class Reserva extends Model
             'estado_visible' => $this->get_estado_visible(),
         ];
 
-        if ($this->relationLoaded('cliente') && $this->getRelation('cliente') !== null) {
-            $datos['cliente'] = $this->getRelation('cliente')->to_array();
+        if ($cliente !== null) {
+            $datos['cliente'] = $cliente;
         }
 
-        if ($this->relationLoaded('vehiculo') && $this->getRelation('vehiculo') !== null) {
-            $datos['vehiculo'] = $this->getRelation('vehiculo')->to_array();
+        if ($vehiculo !== null) {
+            $datos['vehiculo'] = $vehiculo;
         }
 
         return $datos;
     }
 
-    public static function lista_a_array(iterable $reservas): array
+    /**
+     * @param array<int, array>|null $clientes  clientes indexados por id (null: no incrustar)
+     * @param array<int, array>|null $vehiculos vehículos indexados por id (null: no incrustar)
+     */
+    public static function lista_a_array(iterable $reservas, ?array $clientes = null, ?array $vehiculos = null): array
     {
         $lista = [];
 
         foreach ($reservas as $reserva) {
-            $lista[] = $reserva->to_array();
+            $lista[] = $reserva->to_array(
+                $clientes[(int) $reserva->getAttribute('cliente_id')] ?? null,
+                $vehiculos[(int) $reserva->getAttribute('vehiculo_id')] ?? null
+            );
         }
 
         return $lista;

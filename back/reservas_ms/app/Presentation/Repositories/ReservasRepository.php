@@ -13,37 +13,46 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class ReservasRepository
 {
-    private ReservasController $controlador;
-
-    public function __construct()
-    {
-        $this->controlador = new ReservasController();
-    }
-
     public function listar(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 200, 'Reservas obtenidas.', $this->controlador->get_reservas_all($peticion->getQueryParams()));
+        return Respuesta::json($respuesta, 200, 'Reservas obtenidas.', $this->controlador($peticion)->get_reservas_all($peticion->getQueryParams()));
+    }
+
+    public function ocupados(Request $peticion, Response $respuesta): Response
+    {
+        return Respuesta::json($respuesta, 200, 'Vehículos ocupados obtenidos.', $this->controlador($peticion)->get_vehiculos_ocupados($peticion->getQueryParams()));
+    }
+
+    public function resumen(Request $peticion, Response $respuesta): Response
+    {
+        return Respuesta::json($respuesta, 200, 'Resumen de reservas obtenido.', $this->controlador($peticion)->get_resumen());
     }
 
     public function crear(Request $peticion, Response $respuesta): Response
     {
-        return Respuesta::json($respuesta, 201, 'Reserva registrada correctamente.', $this->controlador->save_reserva(Peticion::cuerpo($peticion)));
+        return Respuesta::json($respuesta, 201, 'Reserva registrada correctamente.', $this->controlador($peticion)->save_reserva(Peticion::cuerpo($peticion)));
     }
 
     public function obtener(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Reserva obtenida.', $this->controlador->get_reserva((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Reserva obtenida.', $this->controlador($peticion)->get_reserva((int) $args['id']));
     }
 
     public function devolucion(Request $peticion, Response $respuesta, array $args): Response
     {
         $mantenimiento = filter_var(Peticion::cuerpo($peticion)['mantenimiento'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
-        return Respuesta::json($respuesta, 200, 'Devolución registrada correctamente.', $this->controlador->return_reserva((int) $args['id'], $mantenimiento));
+        return Respuesta::json($respuesta, 200, 'Devolución registrada correctamente.', $this->controlador($peticion)->return_reserva((int) $args['id'], $mantenimiento));
     }
 
     public function cancelacion(Request $peticion, Response $respuesta, array $args): Response
     {
-        return Respuesta::json($respuesta, 200, 'Reserva cancelada correctamente.', $this->controlador->cancel_reserva((int) $args['id']));
+        return Respuesta::json($respuesta, 200, 'Reserva cancelada correctamente.', $this->controlador($peticion)->cancel_reserva((int) $args['id']));
+    }
+
+    /** Se crea por petición: lleva el token del usuario para reenviarlo a clientes_ms y vehiculos_ms. */
+    private function controlador(Request $peticion): ReservasController
+    {
+        return new ReservasController(Peticion::token($peticion));
     }
 }
