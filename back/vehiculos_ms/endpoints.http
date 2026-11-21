@@ -1,0 +1,61 @@
+@host = http://127.0.0.1:8002
+@token =54781676a8978eba608709426cc32a95daf32b2a4ceab86f671d916c54f4c5a1
+
+GET {{host}}/vehiculos
+Authorization: Bearer {{token}}
+
+GET {{host}}/vehiculos?buscar=toyota
+Authorization: Bearer {{token}}
+
+GET {{host}}/vehiculos?estado=disponible
+Authorization: Bearer {{token}}
+
+### Consultar vehículos disponibles en un rango de fechas
+GET {{host}}/vehiculos/disponibles?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
+Authorization: Bearer {{token}}
+
+### Consultar un vehículo por id
+GET {{host}}/vehiculos/1
+Authorization: Bearer {{token}}
+
+### Crear vehículo
+POST {{host}}/vehiculos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "marca": "Toyota",
+    "modelo": "Corolla",
+    "anio": 2022,
+    "categoria": "Sedán",
+    "estado": "disponible"
+}
+
+### Modificar vehículo
+PUT {{host}}/vehiculos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "marca": "Toyota",
+    "modelo": "Corolla Cross",
+    "anio": 2023,
+    "categoria": "SUV",
+    "estado": "mantenimiento"
+}
+
+### Eliminar vehículo
+DELETE {{host}}/vehiculos/1
+Authorization: Bearer {{token}}
+
+### Historial de alquileres de un vehículo
+GET {{host}}/vehiculos/1/historial
+Authorization: Bearer {{token}}
+
+### Vehículos por ids, con el estado guardado
+GET {{host}}/vehiculos/lote?ids=1,2
+Authorization: Bearer {{token}}
+
+### Enviar un vehículo a mantenimiento
+POST {{host}}/vehiculos/1/mantenimiento
+Authorization: Bearer {{token}}
