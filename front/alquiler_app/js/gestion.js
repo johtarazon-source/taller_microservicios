@@ -196,6 +196,10 @@ function iniciarVehiculos(vista) {
     ),
   );
 
+  if (consulta.has('nuevo')) {
+    abrirFormulario();
+  }
+
   return recargar();
 }
 
@@ -348,6 +352,10 @@ function iniciarClientes(vista) {
       lista,
     ),
   );
+
+  if (leerConsulta().has('nuevo')) {
+    abrirFormulario();
+  }
 
   return recargar();
 }

@@ -11,6 +11,15 @@ const OPCIONES_ESTADO_RESERVA = [
   ['todas', 'Todas'],
 ];
 
+function avisoConAcciones(texto, ...acciones) {
+  return crearElemento(
+    'div',
+    {},
+    estadoVacio(texto),
+    crearElemento('div', { class: 'formulario__pie' }, acciones),
+  );
+}
+
 function accionesReserva(recargar) {
   return {
     async alDevolver(reserva) {
@@ -57,11 +66,46 @@ function iniciarReservas(vista) {
     const clienteElegido = parametros.get('cliente_id') ?? '';
     const hoy = hoyIso();
 
+    const { data: clientes } = await ApiClient.get('/clientes');
+    const clientesConLicencia = clientes.filter((cliente) => String(cliente.numero_licencia ?? '').trim() !== '');
+    const botonCancelar = crearElemento(
+      'button',
+      { type: 'button', class: 'boton boton--secundario', onclick: cerrarPanel },
+      'Cancelar',
+    );
+
+    if (clientes.length === 0) {
+      return crearElemento(
+        'div',
+        { class: 'pagina pagina--angosta' },
+        crearElemento('h2', {}, 'Nueva reserva'),
+        avisoConAcciones(
+          'Todavía no hay clientes registrados. Registre uno para poder hacer reservas.',
+          botonCancelar,
+          enlaceBoton('Agregar cliente', 'clientes.html?nuevo=1', 'boton--primario'),
+        ),
+      );
+    }
+
+    if (clientesConLicencia.length === 0) {
+      return crearElemento(
+        'div',
+        { class: 'pagina pagina--angosta' },
+        crearElemento('h2', {}, 'Nueva reserva'),
+        avisoConAcciones(
+          'Ningún cliente tiene licencia registrada, que es obligatoria para reservar. Agréguela desde Clientes.',
+          botonCancelar,
+          enlaceBoton('Ir a clientes', 'clientes.html', 'boton--primario'),
+        ),
+      );
+    }
+
     const formularioPeriodo = crearElemento(
       'form',
       { class: 'formulario', method: 'get' },
       crearElemento('input', { type: 'hidden', name: 'nueva', value: 1 }),
       vehiculoElegido ? crearElemento('input', { type: 'hidden', name: 'vehiculo_id', value: vehiculoElegido }) : null,
+      clienteElegido ? crearElemento('input', { type: 'hidden', name: 'cliente_id', value: clienteElegido }) : null,
       crearElemento('h2', {}, '1. Periodo'),
       crearElemento(
         'div',
@@ -102,13 +146,12 @@ function iniciarReservas(vista) {
     }
 
     let disponibles;
-    let clientes;
 
     try {
-      [{ data: disponibles }, { data: clientes }] = await Promise.all([
-        ApiClient.get('/vehiculos/disponibles', { fecha_inicio: fechaInicio, fecha_fin: fechaFin }),
-        ApiClient.get('/clientes'),
-      ]);
+      ({ data: disponibles } = await ApiClient.get('/vehiculos/disponibles', {
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+      }));
     } catch (error) {
       if (!(error instanceof ApiError) || error.codigoEstado !== 422 || !error.errores) {
         throw error;
@@ -120,6 +163,24 @@ function iniciarReservas(vista) {
     }
 
     const vehiculos = disponibles.vehiculos;
+
+    if (vehiculos.length === 0) {
+      const { data: registrados } = await ApiClient.get('/vehiculos');
+
+      if (registrados.length === 0) {
+        return crearElemento(
+          'div',
+          { class: 'pagina pagina--angosta' },
+          crearElemento('h2', {}, 'Nueva reserva'),
+          avisoConAcciones(
+            'Todavía no hay vehículos registrados. Registre uno para poder hacer reservas.',
+            botonCancelar,
+            enlaceBoton('Agregar vehículo', 'vehiculos.html?nuevo=1', 'boton--primario'),
+          ),
+        );
+      }
+    }
+
     const alerta = alertaGeneral();
 
     const formularioReserva = crearElemento(
@@ -129,7 +190,7 @@ function iniciarReservas(vista) {
       crearElemento(
         'p',
         { class: 'texto-suave' },
-        `Del ${formatearFecha(fechaInicio)} al ${formatearFecha(fechaFin)}: ${vehiculos.length} vehículo(s) disponible(s).`,
+        `Del ${formatearFecha(fechaInicio)} al ${formatearFecha(fechaFin)}: ${vehiculos.length} vehículo(s) disponible(s).${vehiculos.length === 0 ? ' Pruebe con otras fechas.' : ''}`,
       ),
       alerta,
       crearElemento(
@@ -342,10 +403,24 @@ async function construirDisponibilidad() {
       ? `el ${formatearFecha(resultado.fecha_inicio)}`
       : `del ${formatearFecha(resultado.fecha_inicio)} al ${formatearFecha(resultado.fecha_fin)}`;
 
+  let avisoSinVehiculos = null;
+
+  if (vehiculos.length === 0) {
+    const { data: registrados } = await ApiClient.get('/vehiculos');
+
+    avisoSinVehiculos =
+      registrados.length === 0
+        ? avisoConAcciones(
+            'Todavía no hay vehículos registrados. Registre uno para poder hacer reservas.',
+            enlaceBoton('Agregar vehículo', 'vehiculos.html?nuevo=1', 'boton--primario'),
+          )
+        : estadoVacio('No hay vehículos disponibles en ese periodo.');
+  }
+
   pagina.append(
     crearElemento('p', { class: 'texto-suave' }, `${vehiculos.length} vehículo(s) disponible(s) ${textoRango}.`),
     vehiculos.length === 0
-      ? estadoVacio('No hay vehículos disponibles en ese periodo.')
+      ? avisoSinVehiculos
       : crearElemento(
           'div',
           { class: 'rejilla-tarjetas' },
@@ -438,7 +513,14 @@ async function construirHistorial(tipo, id) {
       tarjetaDato('Días de alquiler', diasAlquilado),
     ),
     reservas.length === 0
-      ? estadoVacio('Todavía no hay alquileres registrados.')
+      ? avisoConAcciones(
+          'Todavía no hay alquileres registrados.',
+          enlaceBoton(
+            'Nueva reserva',
+            conConsulta('reservas.html', { nueva: 1, [esVehiculo ? 'vehiculo_id' : 'cliente_id']: id }),
+            'boton--primario',
+          ),
+        )
       : tablaReservas(reservas, { conCliente: esVehiculo, conVehiculo: !esVehiculo }),
   );
 }
