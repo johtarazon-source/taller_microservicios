@@ -7,7 +7,8 @@ use PDO;
 use PDOException;
 
 const ERROR_BASE_DE_DATOS_INEXISTENTE = 1049;
-const TABLAS_ESPERADAS = ['reservas'];
+const ERROR_TABLA_EXISTENTE = 1050;
+const TABLAS_ESPERADAS = ['vehiculos', 'clientes', 'reservas'];
 
 function configurar_base_de_datos(): void
 {
@@ -19,7 +20,7 @@ function configurar_base_de_datos(): void
 
     $servidor = Env::obtener('DB_HOST', '127.0.0.1');
     $puerto = (int) Env::obtener('DB_PORT', '3306');
-    $base_de_datos = Env::obtener('DB_DATABASE', 'reservas_db');
+    $base_de_datos = Env::obtener('DB_DATABASE', 'alquiler_vehiculos_db');
     $usuario = Env::obtener('DB_USERNAME', 'root');
     $contrasena = Env::obtener('DB_PASSWORD', '');
 
@@ -56,7 +57,7 @@ function asegurar_esquema(string $servidor, int $puerto, string $base_de_datos, 
 
         $pdo = new PDO("mysql:host={$servidor};port={$puerto};charset=utf8mb4", $usuario, $contrasena, $opciones);
         $nombre_escapado = str_replace('`', '``', $base_de_datos);
-        $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$nombre_escapado}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$nombre_escapado}` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
         $pdo->exec("USE `{$nombre_escapado}`");
     }
 
@@ -70,7 +71,7 @@ function asegurar_esquema(string $servidor, int $puerto, string $base_de_datos, 
         return;
     }
 
-    $esquema = (string) file_get_contents(dirname(__DIR__, 2) . '/database/reservas_ms.sql');
+    $esquema = (string) file_get_contents(dirname(__DIR__, 3) . '/database/alquiler_vehiculos_db.sql');
 
     foreach (explode(';', $esquema) as $sentencia) {
         $sentencia = trim($sentencia);
@@ -79,6 +80,12 @@ function asegurar_esquema(string $servidor, int $puerto, string $base_de_datos, 
             continue;
         }
 
-        $pdo->exec($sentencia);
+        try {
+            $pdo->exec($sentencia);
+        } catch (PDOException $excepcion) {
+            if (($excepcion->errorInfo[1] ?? 0) !== ERROR_TABLA_EXISTENTE) {
+                throw $excepcion;
+            }
+        }
     }
 }
