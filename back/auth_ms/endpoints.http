@@ -1,0 +1,16 @@
+# auth_ms: inicio y cierre de sesión y validación de tokens. Copie el token de la respuesta del login en @token de los endpoints.http de los demás servicios.
+@host = http://127.0.0.1:8001
+@token =54781676a8978eba608709426cc32a95daf32b2a4ceab86f671d916c54f4c5a1
+
+### Iniciar sesión
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+    "usuario": "admin",
+    "password": "admin1234"
+}
+
+### Validar un token (lo usan los demás microservicios)
+POST {{host}}/auth/validar
+Authorization: Bearer {{token}}
