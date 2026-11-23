@@ -1,0 +1,58 @@
+@host = http://127.0.0.1:8004
+@token =54781676a8978eba608709426cc32a95daf32b2a4ceab86f671d916c54f4c5a1
+
+### Consultar todas las reservas
+GET {{host}}/reservas
+Authorization: Bearer {{token}}
+
+### Filtrar reservas por estado
+GET {{host}}/reservas?estado=activa
+Authorization: Bearer {{token}}
+
+### Filtrar reservas por cliente o vehículo
+GET {{host}}/reservas?cliente_id=1&vehiculo_id=1
+Authorization: Bearer {{token}}
+
+### Consultar una reserva por id
+GET {{host}}/reservas/1
+Authorization: Bearer {{token}}
+
+### Crear reserva
+POST {{host}}/reservas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "cliente_id": 1,
+    "vehiculo_id": 1,
+    "fecha_inicio": "2026-12-01",
+    "fecha_fin": "2026-12-05"
+}
+
+### Registrar devolución de vehículo
+POST {{host}}/reservas/1/devolucion
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "mantenimiento": false
+}
+
+### Cancelar reserva
+POST {{host}}/reservas/1/cancelacion
+Authorization: Bearer {{token}}
+
+### Ids de vehículos ocupados
+GET {{host}}/reservas/ocupados
+Authorization: Bearer {{token}}
+
+GET {{host}}/reservas/ocupados?fecha_inicio=2026-12-01&fecha_fin=2026-12-05
+Authorization: Bearer {{token}}
+
+### Reservas sin incrustar otros datos
+GET {{host}}/reservas?vehiculo_id=1&embeber=cliente
+Authorization: Bearer {{token}}
+
+### Totales y listas de reservas para el panel
+GET {{host}}/reservas/resumen
+Authorization: Bearer {{token}}
