@@ -72,7 +72,6 @@
   }
 
   .dona__arco,
-  .indicador__relleno,
   .boton--destacado::after {
     animation: none;
     transition: none;
@@ -1171,15 +1170,9 @@ a.icono-recuadro:hover {
   height: 100%;
   background: repeating-linear-gradient(-45deg, var(--color-acento) 0 8px, #60a5fa 8px 16px);
   border-radius: inherit;
-  transform: scaleX(calc(var(--porcentaje-relleno) / 100));
+  /* El ancho final lo aplica js/inicio.js con element.animate(). */
+  transform: scaleX(0);
   transform-origin: left;
-  animation: indicador-llenar 700ms var(--curva-salida-suave) both;
-}
-
-@keyframes indicador-llenar {
-  from {
-    transform: scaleX(0);
-  }
 }
 
 .indicador__porcentaje {

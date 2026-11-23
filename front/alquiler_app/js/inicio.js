@@ -106,12 +106,26 @@ function indicador({ variante, etiqueta, valor, detalle, porcentaje, destino, te
       crearElemento(
         'span',
         { class: 'indicador__barra', 'aria-hidden': 'true' },
-        crearElemento('span', { class: 'indicador__relleno', style: `--porcentaje-relleno: ${relleno}` }),
+        rellenoIndicador(relleno),
       ),
       crearElemento('span', { class: 'indicador__porcentaje' }, `${relleno} %`),
     ),
     crearElemento('span', { class: 'solo-lectores-pantalla' }, textoAccesible),
   );
+}
+
+// El ancho se anima con la Web Animations API para no escribir un atributo style en el HTML.
+function rellenoIndicador(relleno) {
+  const elemento = crearElemento('span', { class: 'indicador__relleno' });
+  const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  elemento.animate([{ transform: 'scaleX(0)' }, { transform: `scaleX(${relleno / 100})` }], {
+    duration: sinMovimiento ? 0 : 700,
+    easing: 'ease-out',
+    fill: 'forwards',
+  });
+
+  return elemento;
 }
 
 function dona(porcentaje, disponibles, total) {
